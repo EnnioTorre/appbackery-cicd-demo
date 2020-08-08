@@ -1,8 +1,4 @@
-# appbackery-cicd-demo
-
-*For other versions of OpenShift, follow the instructions in the corresponding branch.
-
-# CI/CD Demo - OpenShift Container Platform 4.4
+# Appbackery-cicd-demo - OpenShift Container Platform 4.4
 
 This repository includes the infrastructure and pipeline definition for continuous delivery using Jenkins, Nexus, SonarQube and Eclipse Che on OpenShift. 
 
