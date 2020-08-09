@@ -1,6 +1,6 @@
-# Appbackery-cicd-demo - OpenShift Container Platform 4.4
+# Appbackery-cicd-demo
 
-This repository includes the infrastructure and pipeline definition for continuous delivery using Jenkins, Nexus, SonarQube and Eclipse Che on OpenShift. 
+This repository contains artifacts definition for continuous delivery using Jenkins, Openshift, Quay.io, Prometheus, Grafana. 
 
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)
@@ -13,6 +13,8 @@ This repository includes the infrastructure and pipeline definition for continuo
 
 
 ## Introduction
+
+![Diagram](https://github.com/EnnioTorre/appbackery-cicd-demo/blob/master/Untitled%20Diagram.drawio)
 
 On every pipeline execution, the code goes through the following steps:
 
