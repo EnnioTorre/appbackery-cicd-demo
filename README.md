@@ -11,7 +11,7 @@ This repository contains artifacts definition for continuous delivery using Jenk
 
 ## Introduction
 
-![Diagram](https://github.com/EnnioTorre/appbackery-cicd-demo/blob/master/pipeline.drawio)
+![Diagram](images/pipelinegraph.png?raw=true)
 
 On every pipeline execution, the code goes through the following steps:
 
@@ -87,9 +87,10 @@ It creates and DEV and PROD project and deploy the monitoring stack.
    ![](images/gateling-analysis.png?raw=true)
 
 
-  * Explore _Demobackery - Dev_ project in OpenShift console and verify the application is deployed in the DEV environment
-  * Explore _Demobackery - Prod_ project in OpenShift console and verify the application is deployed in the PROD environment  
-  * Check Grafana to monitor the deployed application, in order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _Demobackery - Dev_ 
+  * Explore _demobackery - Dev_ project in OpenShift console and verify the application is deployed in the DEV environment
+  * Explore _demobackery - Prod_ project in OpenShift console and verify the application is deployed in the PROD environment  
+  * Check Grafana to monitor the deployed application, in order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _demobackery - Dev_ 
+
   
   ![](images/monitoring.png?raw=true).
 
