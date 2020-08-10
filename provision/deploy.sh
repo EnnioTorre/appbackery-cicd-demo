@@ -80,13 +80,13 @@ GITHUB_APP_URL="https://github.com/EnnioTorre/vaadin-demo-bakery-app.git"
 
 
 function deploy() {
-  echo "oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev""
-  echo "oc $ARG_OC_OPS new-project prod-$APP_NAME --display-name="${APP_NAME} - Prod""
+  oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev"
+  oc $ARG_OC_OPS new-project prod-$APP_NAME --display-name="${APP_NAME} - Prod"
   
 
   sleep 2
   echo "create jenkins in dev-$APP_NAME ......." 
-  echo "oc $ARG_OC_OPS new-app jenkins-ephemeral -n dev-$APP_NAME"
+  oc $ARG_OC_OPS new-app jenkins-ephemeral -n dev-$APP_NAME
 
   sleep 2
 
@@ -95,12 +95,12 @@ function deploy() {
   local pipeline="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/pipeline.yaml"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
-  echo "oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -"
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
 
   sleep 2
 
   echo "deploy CI/CD jenkins pipeline in $ENV-$APP_NAME ......."
- echo " oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -"
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
   sleep 2
   
   ENV="prod"
@@ -109,7 +109,7 @@ function deploy() {
   params="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/params"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
-  echo "oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -"
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
 }
 
 
@@ -126,7 +126,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in dev-$APP_NAME ......."
-  echo "oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -"
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
   
   sleep 2
   
@@ -140,7 +140,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in $ENV-$APP_NAME ......."
-  echo "oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -"
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
 
 }
 
