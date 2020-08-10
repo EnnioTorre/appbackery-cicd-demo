@@ -138,7 +138,7 @@ function deploy_monitoring() {
 
   ENV="dev"
   APP_MON="prometheus"
-  local operator=$(oc $ARG_OC_OPS get po -o name|grep $APP_MON-operator)
+  local operator=$(oc $ARG_OC_OPS -n $ENV-$APP_NAME get po -o name|grep $APP_MON-operator)
 
   if [ -z "$operator" ]
   then
@@ -152,7 +152,7 @@ function deploy_monitoring() {
   sleep 2
   
   APP_MON="grafana"
-  operator=$(oc $ARG_OC_OPS get po -o name|grep $APP_MON-operator)
+  operator=$(oc $ARG_OC_OPS -n $ENV-$APP_NAME get po -o name|grep $APP_MON-operator)
 
   if [ -z "$operator" ]
   then
