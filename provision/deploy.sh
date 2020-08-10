@@ -130,7 +130,7 @@ function deploy_monitoring() {
   
   sleep 2
   
-  APP_MON="$APP_MON"
+  APP_MON="grafana"
   operator=$(oc $ARG_OC_OPS get po -o name|grep $APP_MON-operator)
 
   if [ -z "$operator" ]
