@@ -8,7 +8,7 @@ metadata:
   description: "Template containing prometheus artifacts."
 parameters:
 - displayName: project name
-  value: dev-rcp-1
+  value: dev-backerydemo
   name: PROJECT
   required: true
 - displayName: Application name
