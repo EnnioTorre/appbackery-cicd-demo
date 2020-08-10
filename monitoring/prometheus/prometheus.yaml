@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: monitoring demobackery
+  template: prometheus
   group: demobackery
 metadata:
   name: prometheus
