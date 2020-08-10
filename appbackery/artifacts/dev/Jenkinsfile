@@ -1,0 +1,100 @@
+def mvnCmd = "mvn --batch-mode"
+pipeline {
+agent {
+    label 'maven'
+}
+stages {
+    stage('Build App') {
+        steps {
+            sh "${mvnCmd} com.github.eirslett:frontend-maven-plugin:1.7.6:install-node-and-npm -DnodeVersion=\"v10.16.0\""
+            sh "${mvnCmd} clean package -DrunLint -DskipTests=true -Pproduction"
+            archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+        }//step
+    }//stage
+    stage('Unit Testing') {
+        steps {
+            sh "${mvnCmd} test -Pproduction"
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/*.xml'])
+        }//step
+    }//stage
+    stage('Integration Testing') {
+        steps {
+            sh "${mvnCmd} verify -Pit -Pproduction -Dvaadin.proKey=ennioTmad@gmail.com/pro-0a3ab60e-06e2-4c41-b9dc-054060431be6"
+            step([$class: 'JUnitResultArchiver', testResults: '**/target/failsafe-reports/*.xml'])
+        }//step
+    }//stage 
+    stage('Build Image') {
+        steps {
+            sh "cp target/vaadin-demo-bakery-app-1.0-SNAPSHOT.war target/ROOT.war"
+                script {
+                    openshift.withCluster() {
+                        openshift.withProject(env.DEV_PROJECT) {
+                        openshift.selector("bc", "${APP_NAME}").startBuild("--from-file=target/ROOT.war", "--wait=true", "--follow")
+                    }
+                }
+            }//script
+        }// step
+    }// stage
+    stage('Deploy DEV') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(env.DEV_PROJECT) {
+                        def deployments = openshift.selector("dc", "${APP_NAME}");
+                        deployments.rollout().latest();
+                        timeout (time: 10, unit: 'MINUTES') {
+                            // this will wait until the desired replicas are available
+                            deployments.rollout().status();
+                        
+                        }
+                    }
+                }
+            }//script
+        }//step
+    }//stage
+    stage('Scalability test') {
+        steps {
+            script {
+                sh "${mvnCmd} -Pscalability gatling:test -Dgatling.baseUrl=http://${APP_NAME}.${DEV_PROJECT}.svc:8080"
+                //target/gatling/BaristaFlow-1487784042461/index.html
+                sh "mkdir -p test-results/gatling && cp -r target/gatling/baristaflow-*/* test-results/gatling"
+                publishHTML (target: [ allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: 'test-results/gatling', reportFiles: '**/*', reportName: "Gatling Report" ])
+            }//script
+        }//steps
+    }//stage
+    stage('Promote to prod?') {
+        agent {
+            label 'skopeo'
+        }
+        steps {
+            timeout(time:15, unit:'MINUTES') {
+                input message: "Promote to prod?", ok: "Promote"
+            }
+            script {
+                openshift.withCluster() {
+                    withCredentials([usernamePassword(credentialsId: "${openshift.project()}-quay-cicd-secret", usernameVariable: "QUAY_USER", passwordVariable: "QUAY_PWD")]) {
+                        sh "skopeo copy docker://${QUAY_REPOSITORY}:dev docker://${QUAY_REPOSITORY}:prod --src-creds \"$QUAY_USER:$QUAY_PWD\" --dest-creds \"$QUAY_USER:$QUAY_PWD\" --src-tls-verify=false --dest-tls-verify=false"
+                    }
+                }
+            }//script
+        }//steps
+    }//stage
+    stage('Deploy prod') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject(env.PROD_PROJECT) {
+                        def deployments = openshift.selector("dc", "${APP_NAME}");
+                        deployments.rollout().latest();
+                        timeout (time: 10, unit: 'MINUTES') {
+                        // this will wait until the desired replicas are available
+                            deployments.rollout().status()
+                        
+                        }
+                    }
+                }
+            }//script
+        }//steps
+    }//stage
+}
+}

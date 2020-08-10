@@ -91,7 +91,7 @@ function deploy() {
   sleep 2
 
   local template="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/deployment.yaml"
-  local params="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/params"
+  local params="../appbackery/artifacts/$ENV/params"
   local pipeline="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/pipeline.yaml"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
@@ -106,7 +106,7 @@ function deploy() {
   ENV="prod"
 
   template="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/deployment.yaml"
-  params="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/params"
+  params="../appbackery/artifacts/$ENV/params"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
   oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
@@ -126,7 +126,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in dev-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
   
   sleep 2
   
@@ -140,7 +140,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
 
 }
 

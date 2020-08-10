@@ -11,7 +11,7 @@ metadata:
 message: "Use the following credentials for login:\nJenkins: use your OpenShift credentials\nApplication: admin@vaadin.com/admin"
 parameters:
 - displayName: DEV project name
-  value: dev-rcp-1
+  value: dev-demobakery
   name: DEV_PROJECT
   required: true
 - displayName: PROD project name
@@ -101,7 +101,7 @@ objects:
           value: ${APP_NAME}
         - name: QUAY_REPOSITORY
           value: ${QUAY_REPOSITORY}
-        jenkinsfilePath: ./kubernetes/Jenkinsfile
+        jenkinsfilePath: ./kubernetes/dev/Jenkinsfile
       type: JenkinsPipeline
     source:
       type: Git

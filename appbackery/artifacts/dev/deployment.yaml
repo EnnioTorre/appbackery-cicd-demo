@@ -90,9 +90,6 @@ objects:
             httpGet:
               path: /actuator/health
               port: 8080
-              httpHeaders:
-                - name: Authorization
-                  value: Basic YWRtaW5AdmFhZGluLmNvbTphZG1pbg==
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
