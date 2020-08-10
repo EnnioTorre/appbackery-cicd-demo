@@ -22,14 +22,16 @@ On every pipeline execution, the code goes through the following steps:
 3. Unit tests are executed and the results archived in Jenkins
 4. Integration test are executed and the results archived in Jenkins
 5. A container image (:dev) is built and the image is pushed to Quay.io image registry and a security scan is scheduled [Quay.io](https://quay.io/repository/enniotorre/demobackery?tab=tags)
-6. Application WAR artifact is deployed on Tomcat in DEV project (pulled form Quay.io)
+6. Application WAR artifact is deployed on Tomcat in the DEV project (pulled form Quay.io)
 7. Scalability Test are executed against the deployed application and results are archived in Jenkins
-5. If tests successful, the pipeline is paused for the release manager to approve the release to PROD
-6. If approved, the DEV image is tagged as PROD in the Quay.io image repository using [Skopeo](https://github.com/containers/skopeo)
-6. The PROD image is deployed on tomcat in the PROD project (pulled form Quay.io, tag PROD)
+8. If tests successful, the pipeline is paused for the release manager to approve the release to PROD
+9. If approved, the DEV image is tagged as PROD in the Quay.io image repository using [Skopeo](https://github.com/containers/skopeo)
+10. The PROD image is deployed on tomcat in the PROD project (pulled form Quay.io, tag PROD)
 
 The application is a vaadin application forked form :
 [https://github.com/igor-baiborodine/vaadin-demo-bakery-app.git](https://github.com/igor-baiborodine/vaadin-demo-bakery-app.git)
+
+For simplicity only DEV and PROD enviroments are considered.
 
 ## Scenario
 A development team is responsible of the development and deployment of a kubernetes native application, this CI/CD pipeline build test and deploy the application to PROD, and, if a git webhook is configured, automatically executed whenever a new commit hits the master branch.
@@ -44,13 +46,13 @@ This allows the development team to control how the application starts up, manag
 
 
 ## Technology stack
-* Openshift: it includes the tools needed to manage the application lifecycle and provides an end-to-end solution for building complete deployment  pipelines and monitoring.
+* Openshift: it includes the tools needed to manage the application lifecycle and provides an end-to-end solution for building complete deployment pipelines and monitoring.
 * Jenkins: it is well integrated in Openshift and provides a easy way to publish all the pipeline artifacts and reports: application WAR, testing results etc... .
 * Quay.io: actually I wanted to try this out, it provides a lot of cool features, among which the possibility to inspect and pull the images produced by the appbackery pipeline.
 * Headless Chrome: mandatory when it comes to run selenium tests, see the image stored in the docker folder for more details.
 * Tomcat: straightforward choice with spring boot2.
 * Spring Boot Actuator:  includes a number of endpoints to help you monitor your application: `/health`, `/prometheus`. the latest in particular exposes the JVM metrics which are scraped by Prometheus.
-* Prometheus+Grafana: very powerful monitoring stack, both are integrated in Openshift4 by means of Operators. Moreover grafana provides a vast choice of dashboards available online [Dashboards](https://grafana.com/grafana/dashboards).
+* Prometheus+Grafana: very powerful monitoring stack, both are integrated in Openshift4 by means of Operators. Moreover, grafana provides a vast choice of dashboards available online [Dashboards](https://grafana.com/grafana/dashboards).
 
 ## Getting Started
 
