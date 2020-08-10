@@ -79,6 +79,7 @@ objects:
       app: ${APP_NAME}
       name: ${APP_NAME}
     name: ${APP_NAME}-cicd-pipeline
+    namespace: ${DEV_PROJECT}
   spec:
     triggers:
       - type: GitHub
@@ -116,6 +117,7 @@ objects:
       app: ${APP_NAME}
       role: jenkins-slave
     name: jenkins-slaves
+    namespace: ${DEV_PROJECT}
   data:
     maven-template: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>

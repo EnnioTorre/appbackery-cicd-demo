@@ -34,13 +34,13 @@ The application is a vaadin application forked form :
 ## Scenario
 A development team is responsible of the development and deployment of a kubernetes native application, this CI/CD pipeline build test and deploy the application to PROD, and, if a git webhook is configured, automatically executed whenever a new commit hits the master branch.
 
-The YAML file that declares the configuration of the Kubernetes objects needed to deploy the application on different environments are stored together with the application code:
+The YAML files that declares the configuration of the Kubernetes objects needed to deploy the application on different environments are stored together with the application code:
 
 * [prod templates](https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/prod/deployment.yaml)
 
 * [dev templates](https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/dev/deployment.yaml)
 
-In this way the development team controls how the application starts up, managing differences in the environments, namely, number of replicas, resources settings etc...
+This allows the development team to control how the application starts up, managing differences in the environments, namely, number of replicas, resources settings etc...
 
 
 ## Technology stack
@@ -58,11 +58,11 @@ This repository contains :
 ```
 .
 ├── appbackery
-│   └── artifacts       ( application kubernetes templates differenciated by env )
+│   └── artifacts       ( Openshift templates differentiated by environemnt )
 │       ├── dev
 │       └── prod
 ├── docker
-│   └── JenkinsSlave    ( jenkins slave with chrome installed )
+│   └── JenkinsSlave    ( jenkins slave with Chrome installed )
 ├── images              ( pipeline screenshots )
 ├── monitoring          ( monitoring stack )
 │   ├── grafana
@@ -79,12 +79,23 @@ Use the `provisioning/deploy.sh` script provided to deploy the entire demo:
   ./deploy.sh delete 
   ```
 Full deploymnet with monitoring:
+  1. create projects and deploy Kubernetes objects 
+
+  ```
+  ./deploy.sh deploy
+  ```
+  2. install the prometheus and grafana operators from the Operator Hub
+
+  3. deploy the monitoring stack configurations
 
   ```
   ./deploy.sh deploy --enable-monitoring
   ```
 
-It creates and DEV and PROD project and deploy the monitoring stack. 
+  Check if prometheus and grafana were deployed in _dev-demobakery_. 
+  
+  4. add ![Dashboard](https://grafana.com/grafana/dashboards/9568) to visualiye the metric exposed by `/prometheus`
+  you can access grafana via the route, `root:admin`.
 
 ## Application Customizations
 
@@ -120,16 +131,17 @@ Following customization where required:
 
 * A Jenkins pipeline is pre-configured which clones the application from [https://github.com/enniotorre/vaadin-demo-bakery-app.git](https://github.com/enniotorre/vaadin-demo-bakery-app.git).
 
-    You can also explore the pipeline job in Jenkins by clicking on the Jenkins route url, logging in with the OpenShift credentials and clicking on _tasks-pipeline_ and _Configure_.
+    You can also explore the pipeline job in Openshift either by clicking on _Builds_ and _demobakery-cicd-pipeline_ or 
+    by clicking on the Jenkins route url, logging in with the OpenShift credentials and clicking on _demobakery-cicd-pipeline_ and _Configure_.
 
-* Run an instance of the pipeline by starting the _tasks-pipeline_ in OpenShift or Jenkins.
+* Run an instance of the pipeline by starting the _demobakery-cicd-pipeline_ in OpenShift or Jenkins.
 
 * Inspect the logs by clicking on _Logs_
 
 * Inspect the built images on  [Quay.io](https://quay.io/repository/enniotorre/demobackery) once that the built is finished
 
 * Pipelines pauses at _Deploy to PROD_ step for approval in order to promote the DEV image to the PROD environment. Click on this step on the pipeline and then _Promote_.
-![](images/pipeline.png?raw=true)
+![](images/aknowledge.png?raw=true)
 
 * After pipeline completion, you can :
   * Explore the _Unit test results_ 
@@ -150,5 +162,5 @@ Following customization where required:
   * Check Grafana to monitor the deployed application, in order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _demobackery - Dev_ 
 
   
-  ![](images/monitoring.png?raw=true).
+  ![](images/monitoring.png?raw=true)
 
