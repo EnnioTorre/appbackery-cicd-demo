@@ -121,7 +121,7 @@ function deploy() {
   sleep 2
 
   echo "deploy CI/CD jenkins pipeline in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline|oc $ARG_OC_OPS apply -f -
   sleep 2
   
   ENV="prod"
