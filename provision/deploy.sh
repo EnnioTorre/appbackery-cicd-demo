@@ -84,17 +84,17 @@ function deploy() {
   local project=$(oc $ARG_OC_OPS get project -o name|grep dev-$APP_NAME)
   if [ -z "$project" ]
   then
-       echo "project with name dev-$APP_NAME already exists"
+     oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev"
   else 
-      oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev"
+     echo "project with name dev-$APP_NAME already exists" 
   fi
 
   project=$(oc $ARG_OC_OPS get project -o name|grep prod-$APP_NAME)
   if [ -z "$project" ]
   then
-       echo "project with name prod-$APP_NAME already exists"
+       oc $ARG_OC_OPS new-project prod-$APP_NAME   --display-name="${APP_NAME} - Prod"
   else 
-      oc $ARG_OC_OPS new-project prod-$APP_NAME   --display-name="${APP_NAME} - Prod"
+       echo "project with name prod-$APP_NAME already exists"
   fi
   
 
@@ -102,10 +102,10 @@ function deploy() {
   local jenkins=$(oc $ARG_OC_OPS get dc -o name|grep jenkins)
   if [ -z "$jenkins" ]
   then
-       echo "Jenkins already exists"
-  else 
       echo "create jenkins in dev-$APP_NAME ......." 
       oc $ARG_OC_OPS new-app jenkins-ephemeral -n dev-$APP_NAM
+  else 
+     echo "Jenkins already exists" 
   fi
  
 
