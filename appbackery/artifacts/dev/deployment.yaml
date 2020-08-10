@@ -132,6 +132,28 @@ objects:
           name: tomcat:latest
       type: Docker
     successfulBuildsHistoryLimit: 5
+# IMG STREAM
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+  labels:
+    build: ${APP_NAME}
+    app: ${APP_NAME}
+  name: tomcat
+  namespace: ${DEV_PROJECT}
+  spec:
+  lookupPolicy:
+    local: false
+  tags:
+  - annotations:
+      openshift.io/imported-from: quay.io/bitnami/tomcat
+    from:
+      kind: DockerImage
+      name: quay.io/bitnami/tomcat
+    importPolicy: {}
+    name: latest
+    referencePolicy:
+      type: Source
 # SERVICE
 - apiVersion: v1
   kind: Service
