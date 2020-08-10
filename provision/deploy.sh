@@ -99,7 +99,7 @@ function deploy() {
   
 
   sleep 2
-  local jenkins=$(oc $ARG_OC_OPS get dc -o name|grep jenkins)
+  local jenkins=$(oc $ARG_OC_OPS -n dev-$APP_NAME get dc -o name|grep jenkins)
   if [ -z "$jenkins" ]
   then
       echo "create jenkins in dev-$APP_NAME ......." 
@@ -121,7 +121,7 @@ function deploy() {
   sleep 2
 
   echo "deploy CI/CD jenkins pipeline in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
   sleep 2
   
   ENV="prod"
