@@ -1,6 +1,6 @@
 # Appbackery-cicd-demo
 
-This repository contains artifacts definition for continuous delivery using Jenkins, Openshift, Quay.io, Prometheus, Grafana. 
+This repository contains artifacts definition for continuous delivery and monitoring of an application using Jenkins, Openshift, Quay.io, Prometheus, Grafana. 
 
 * [Introduction](#introduction)
 * [Scenario](#scenario)
