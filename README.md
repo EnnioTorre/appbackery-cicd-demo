@@ -161,7 +161,7 @@ Following customizations where required:
   * Explore _demobackery - Prod_ project in OpenShift console and verify the application is deployed in the PROD environment  
   * Check Grafana to monitor the deployed application
 
-  ![](images/monitoring.png?raw=true)
+   ![](images/grafana.png?raw=true)
 
   In order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _demobackery - Dev_ 
   
