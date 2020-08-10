@@ -75,7 +75,7 @@ objects:
     resources:
     - configmaps
     verbs: ["get"]
-  - nonResourceURLs: ["/actuator/metrics"]
+  - nonResourceURLs: ["/actuator/prometheus"]
     verbs: ["get"]
 - apiVersion: rbac.authorization.k8s.io/v1beta1
   kind: ClusterRoleBinding
