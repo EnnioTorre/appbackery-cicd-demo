@@ -44,9 +44,9 @@ This allows the development team to control how the application starts up, manag
 
 
 ## Technology stack
-* Openshift: well that was an easy decision, it includes the tools needed to manage the application lifecycle and provides an end-to-end solution for building complete deployment  pipelines and monitoring.
+* Openshift: it includes the tools needed to manage the application lifecycle and provides an end-to-end solution for building complete deployment  pipelines and monitoring.
 * Jenkins: it is well integrated in Openshift and provides a easy way to publish all the pipeline artifacts and reports: application WAR, testing results etc... .
-* Quay.io: actually I wanted to try it out, it provides a lot of cool features, among which the possibility to inspect and pull the images produced by appbackery pipeline.
+* Quay.io: actually I wanted to try this out, it provides a lot of cool features, among which the possibility to inspect and pull the images produced by the appbackery pipeline.
 * Headless Chrome: mandatory when it comes to run selenium tests, see the image stored in the docker folder for more details.
 * Tomcat: straightforward choice with spring boot2.
 * Spring Boot Actuator:  includes a number of endpoints to help you monitor your application: `/health`, `/prometheus`. the latest in particular exposes the JVM metrics which are scraped by Prometheus.
@@ -94,12 +94,12 @@ Full deploymnet with monitoring:
 
   Check if prometheus and grafana were deployed in _dev-demobakery_. 
   
-  4. add ![Dashboard](https://grafana.com/grafana/dashboards/9568) to visualiye the metric exposed by `/prometheus`
+  4. add [Dashboard](https://grafana.com/grafana/dashboards/9568) to visualiye the metric exposed by `/prometheus`
   you can access grafana via the route, `root:admin`.
 
 ## Application Customizations
 
-Following customization where required:
+Following customizations where required:
 
 * enable of actuator in the application.yaml
   ```
@@ -159,8 +159,9 @@ Following customization where required:
 
   * Explore _demobackery - Dev_ project in OpenShift console and verify the application is deployed in the DEV environment
   * Explore _demobackery - Prod_ project in OpenShift console and verify the application is deployed in the PROD environment  
-  * Check Grafana to monitor the deployed application, in order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _demobackery - Dev_ 
+  * Check Grafana to monitor the deployed application
 
-  
   ![](images/monitoring.png?raw=true)
 
+  In order to see some workload (due to the stress test) and only for demo purposes, the monitoring stack is deployed in  _demobackery - Dev_ 
+  
