@@ -73,20 +73,41 @@ if [ "$?" -ne 0 ]
    then
       echo "you are not logged in!"
    fi
-APP_NAME="demobackery"
+APP_NAME="demobakery"
 ENV="dev"
 
 GITHUB_APP_URL="https://github.com/EnnioTorre/vaadin-demo-bakery-app.git"
 
 
 function deploy() {
-  oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev"
-  oc $ARG_OC_OPS new-project prod-$APP_NAME --display-name="${APP_NAME} - Prod"
+
+  local project=$(oc $ARG_OC_OPS get project -o name|grep dev-$APP_NAME)
+  if [ -z "$project" ]
+  then
+       echo "project with name dev-$APP_NAME already exists"
+  else 
+      oc $ARG_OC_OPS new-project dev-$APP_NAME   --display-name="${APP_NAME} - Dev"
+  fi
+
+  project=$(oc $ARG_OC_OPS get project -o name|grep prod-$APP_NAME)
+  if [ -z "$project" ]
+  then
+       echo "project with name prod-$APP_NAME already exists"
+  else 
+      oc $ARG_OC_OPS new-project prod-$APP_NAME   --display-name="${APP_NAME} - Prod"
+  fi
   
 
   sleep 2
-  echo "create jenkins in dev-$APP_NAME ......." 
-  oc $ARG_OC_OPS new-app jenkins-ephemeral -n dev-$APP_NAME
+  local jenkins=$(oc $ARG_OC_OPS get dc -o name|grep jenkins)
+  if [ -z "$jenkins" ]
+  then
+       echo "Jenkins already exists"
+  else 
+      echo "create jenkins in dev-$APP_NAME ......." 
+      oc $ARG_OC_OPS new-app jenkins-ephemeral -n dev-$APP_NAM
+  fi
+ 
 
   sleep 2
 
@@ -95,12 +116,12 @@ function deploy() {
   local pipeline="https://raw.githubusercontent.com/EnnioTorre/vaadin-demo-bakery-app/master/kubernetes/$ENV/pipeline.yaml"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
 
   sleep 2
 
   echo "deploy CI/CD jenkins pipeline in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $pipeline -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
   sleep 2
   
   ENV="prod"
@@ -109,7 +130,7 @@ function deploy() {
   params="../appbackery/artifacts/$ENV/params"
 
   echo "deploy application artifacts in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME --param-file $params -f $template -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
 }
 
 
@@ -117,7 +138,7 @@ function deploy_monitoring() {
 
   ENV="dev"
   APP_MON="prometheus"
-  operator=$(oc $ARG_OC_OPS get po -o name|grep $APP_MON-operator)
+  local operator=$(oc $ARG_OC_OPS get po -o name|grep $APP_MON-operator)
 
   if [ -z "$operator" ]
   then
@@ -126,7 +147,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in dev-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
   
   sleep 2
   
@@ -140,7 +161,7 @@ function deploy_monitoring() {
   fi
 
   echo "deploy $APP_MON in $ENV-$APP_NAME ......."
-  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc -n $ENV-$APP_NAME $ARG_OC_OPS apply -f -
+  oc $ARG_OC_OPS process -p APP_NAME=$APP_NAME -p PROJECT=$ENV-$APP_NAME -f ../monitoring/$APP_MON/$APP_MON.yaml -n $ENV-$APP_NAME|oc $ARG_OC_OPS apply -n $ENV-$APP_NAME -f -
 
 }
 

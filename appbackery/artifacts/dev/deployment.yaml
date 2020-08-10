@@ -8,7 +8,7 @@ metadata:
   description: "Template containing application artifacts."
 parameters:
 - displayName: DEV_PROJECT name
-  value: dev-rcp-1
+  value: dev-demobakery
   name: DEV_PROJECT
   required: true
 - displayName: Quay.io Image Repository
