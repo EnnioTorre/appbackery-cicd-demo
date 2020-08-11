@@ -20,13 +20,13 @@ On every pipeline execution, the code goes through the following steps:
 1. Code is cloned from GitHub
 2. Application is built with maven and the WAR artifact is archived in Jenkins
 3. Unit tests are executed and the results archived in Jenkins
-4. Integration test are executed and the results archived in Jenkins
-5. A container image (:dev) is built and the image is pushed to Quay.io image registry and a security scan is scheduled [Quay.io](https://quay.io/repository/enniotorre/demobackery?tab=tags)
-6. Application WAR artifact is deployed on Tomcat in the DEV project (pulled form Quay.io)
+4. Integration tests are executed and the results archived in Jenkins
+5. A container image (:dev) is built and the image is pushed to [Quay.io](https://quay.io/repository/enniotorre/demobackery?tab=tags) image registry and a security scan is scheduled 
+6. Application WAR artifact is deployed on Tomcat in the DEV project (pulled from Quay.io)
 7. Scalability Test are executed against the deployed application and results are archived in Jenkins
 8. If tests successful, the pipeline is paused for the release manager to approve the release to PROD
 9. If approved, the DEV image is tagged as PROD in the Quay.io image repository using [Skopeo](https://github.com/containers/skopeo)
-10. The PROD image is deployed on tomcat in the PROD project (pulled form Quay.io, tag PROD)
+10. The PROD image is deployed on tomcat in the PROD project (pulled from Quay.io, tag PROD)
 
 The application is a vaadin application forked form :
 [https://github.com/igor-baiborodine/vaadin-demo-bakery-app.git](https://github.com/igor-baiborodine/vaadin-demo-bakery-app.git)
@@ -34,7 +34,7 @@ The application is a vaadin application forked form :
 For simplicity only DEV and PROD enviroments are considered.
 
 ## Scenario
-A development team is responsible of the development and deployment of a kubernetes native application, this CI/CD pipeline build test and deploy the application to PROD, and, if a git webhook is configured, automatically executed whenever a new commit hits the master branch.
+A development team is responsible of the development and deployment of a kubernetes native application, this CI/CD [pipeline](appbackery/artifacts/dev/Jenkinsfile) build test and deploy the application to PROD, and, if a git webhook is configured, automatically executed whenever a new commit hits the master branch.
 
 The YAML files that declares the configuration of the Kubernetes objects needed to deploy the application on different environments are stored together with the application code:
 
@@ -52,8 +52,8 @@ This allows the development team to control how the application starts up, manag
 * Headless Chrome: mandatory when it comes to run selenium tests, see the image stored in the docker folder for more details.
 * Tomcat: straightforward choice with spring boot2.
 * Spring Boot Actuator:  includes a number of endpoints to help you monitor your application: `/health`, `/prometheus`. the latest in particular exposes the JVM metrics which are scraped by Prometheus.
-* Prometheus+Grafana: very powerful monitoring stack, both are opensource and integrated in Openshift4 by means of Operators. Moreover, grafana provides a vast choice of dashboards available    online [Dashboards](https://grafana.com/grafana/dashboards).
-Prometheus scrapes individual app instances for metrics which are made available for visualization in Grafana:
+* Prometheus+Grafana: very powerful monitoring stack, both are opensource and integrated in Openshift4 by means of Operators. Moreover, grafana provides a vast choice of dashboards available    online [Dashboards](https://grafana.com/grafana/dashboards). 
+Prometheus scrapes individual app instances for metrics which are made available for visualization in [Grafana](images/grafana.png):
   * JVM Memory Pools (Heap, Non-Heap)
   * CPU-Usage, Load, Threads, File Descriptors, Log Events
   * Garbage Collection
@@ -66,16 +66,16 @@ This repository contains :
 ```
 .
 ├── appbackery
-│   └── artifacts       ( Openshift templates differentiated by environemnt )
+│   └── artifacts       (Pipeline and Openshift templates differentiated by environemnt)
 │       ├── dev
 │       └── prod
 ├── docker
-│   └── JenkinsSlave    ( jenkins slave with Chrome installed )
-├── images              ( pipeline screenshots )
-├── monitoring          ( monitoring stack )
+│   └── JenkinsSlave    (jenkins slave with Chrome installed)
+├── images              (pipeline screenshots)
+├── monitoring          (monitoring stack)
 │   ├── grafana
 │   └── prometheus
-└── provision           ( deploy script for demo purposes )
+└── provision           (deploy script for demo purposes)
 
 ```
 ## Automated Deploy on OpenShift 4
@@ -109,7 +109,7 @@ Full deploymnet with monitoring:
 
 Following customizations where required:
 
-* enable Spring Boot Actuator in the application.yaml, this is needed to expose the metrics from our application to Prometheus.
+* enabling Spring Boot Actuator in the application.yaml, this is needed to expose the metrics from our application to Prometheus.
   ```
   #Metrics related configurations
   management.endpoint.metrics.enabled=true
@@ -128,7 +128,7 @@ Following customizations where required:
 				"/actuator/**",
   ```
 
-* enable headless chrome; required for the stress testing
+* enabling headless chrome; required for the stress testing
   ```
   options.addArguments("--headless", "--disable-gpu", "--no-sandbox");
 	setDriver(new ChromeDriver(options));
