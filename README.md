@@ -52,7 +52,13 @@ This allows the development team to control how the application starts up, manag
 * Headless Chrome: mandatory when it comes to run selenium tests, see the image stored in the docker folder for more details.
 * Tomcat: straightforward choice with spring boot2.
 * Spring Boot Actuator:  includes a number of endpoints to help you monitor your application: `/health`, `/prometheus`. the latest in particular exposes the JVM metrics which are scraped by Prometheus.
-* Prometheus+Grafana: very powerful monitoring stack, both are integrated in Openshift4 by means of Operators. Moreover, grafana provides a vast choice of dashboards available online [Dashboards](https://grafana.com/grafana/dashboards).
+* Prometheus+Grafana: very powerful monitoring stack, both are opensource and integrated in Openshift4 by means of Operators. Moreover, grafana provides a vast choice of dashboards available    online [Dashboards](https://grafana.com/grafana/dashboards).
+Prometheus scrapes individual app instances for metrics which are made available for visualization in Grafana:
+  * JVM Memory Pools (Heap, Non-Heap)
+  * CPU-Usage, Load, Threads, File Descriptors, Log Events
+  * Garbage Collection
+  * health metrics (up, lifetime, restarts)
+
 
 ## Getting Started
 
@@ -103,7 +109,7 @@ Full deploymnet with monitoring:
 
 Following customizations where required:
 
-* enable of actuator in the application.yaml
+* enable Spring Boot Actuator in the application.yaml, this is needed to expose the metrics from our application to Prometheus.
   ```
   #Metrics related configurations
   management.endpoint.metrics.enabled=true
