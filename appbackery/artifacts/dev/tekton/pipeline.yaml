@@ -56,8 +56,6 @@ spec:
   #     value: ""
   #   - name: deleteExisting
   #     value: "true"
-  #   - name: revision
-  #     value: $(params.GIT_REVISION)
   - name: junit-test
     taskRef:
       name: maven-task
