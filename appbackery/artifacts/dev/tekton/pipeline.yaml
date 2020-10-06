@@ -132,10 +132,6 @@ spec:
       inputs:
       - name: source
         resource: app-git
-#   - name: apply-manifests
-#     taskRef:
-#       name: apply-manifests
-#     workspaces:
 #     - name: source
 #       workspace: shared-workspace
 #     runAfter:
