@@ -1,0 +1,37 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-task
+spec:
+  params:
+    - name: PROJECT_NAME
+      description: The namespace we are tagging to
+      type: string
+    - name: DEPLOYMENT
+      description: the DEPLOYMENT name
+      type: string
+    - name: IMAGE_URL
+      type: string
+      description: image to be build from the code
+    - name: IMAGE_TAG
+      type: string
+      description: image tag
+  steps:
+    - name: patch
+      image: quay.io/openshift/origin-cli:latest
+      script: |
+          oc patch dc $(params.DEPLOYMENT) --patch='{"spec":{"template":{"spec":{"containers":[{"name":"$(params.DEPLOYMENT)","image":"$(params.IMAGE_URL):$(params.IMAGE_TAG)"}]}}}}'
+    - name: rollout-image
+      image: quay.io/openshift/origin-cli:latest
+      command: ["/usr/bin/oc"]
+      args:
+        - rollout
+        - latest
+        - "$(params.DEPLOYMENT)"
+    - name: verify
+      image: quay.io/openshift/origin-cli:latest
+      command: ["/usr/bin/oc"]
+      args:
+        - rollout
+        - status
+        - "dc/$(params.DEPLOYMENT)"

@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: app-git
+spec:
+  type: git
+  params:
+  - name: url
+    value: 'https://github.com/EnnioTorre/vaadin-demo-bakery-app.git'
+  - name: revision
+    value: develop
+  - name: sslVerify
+    value: "false"

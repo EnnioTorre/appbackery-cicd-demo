@@ -1,0 +1,155 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy
+spec:
+  resources:
+  - name: app-git
+    type: git
+  params:
+  - name: APP_NAME
+    type: string
+    description: name of the deployment to be patched
+  - name: GIT_CONTEXT_DIR_KUBERNETES
+    type: string
+    description: Kubernetes Objects path
+    default: src
+  - name: GIT_CONTEXT_DIR_DOCKER
+    type: string
+    description: Docker Image path
+  - name: WAR_CONTEXT
+    type: string
+    description: War file location
+  - name: MVN_IMAGE
+    type: string
+    description: image to be build from the code
+  - name: GIT_URL
+    type: string
+    description: url of the git repo for the code of deployment
+  - name: GIT_REVISION
+    type: string
+    description: revision to be used from repo of the code for deployment
+    default: "master"
+  - name: BUILDER_IMAGE
+    description: buildah builder image.
+    default: quay.io/buildah/stable:v1.14.3
+  - name: IMAGE_URL
+    description: The location of the buildah builder image.
+    default: image-registry.openshift-image-registry.svc:5000
+  - name: IMAGE_TAG
+    description: The applicaton image tag.
+    default: latest
+  - name: PROJECT_NAME
+    description: The project name.
+  tasks:
+  # - name: fetch-repository
+  #   taskRef:
+  #     name: git-clone
+  #     kind: ClusterTask
+  #     resources:
+  #       - name: source
+  #         resource: app-git
+  #   params:
+  #   - name: url
+  #     value: $(params.GIT_URL)
+  #   - name: subdirectory
+  #     value: ""
+  #   - name: deleteExisting
+  #     value: "true"
+  #   - name: revision
+  #     value: $(params.GIT_REVISION)
+  - name: junit-test
+    taskRef:
+      name: maven-task
+      kind: Task
+    params:
+    - name: APP_NAME
+      value: $(params.APP_NAME)
+    - name: GOALS
+      value:
+        - com.github.eirslett:frontend-maven-plugin:1.7.6:install-node-and-npm
+        - -DnodeVersion="v12.14.0
+        - test
+        - -Pproduction
+    - name: GIT_CONTEXT_DIR_DOCKER
+      value: $(params.GIT_CONTEXT_DIR_DOCKER)
+    - name: WAR_CONTEXT
+      value: $(params.WAR_CONTEXT)
+    - name: MVN_IMAGE
+      value: $(params.MVN_IMAGE)
+    resources:
+      inputs:
+      - name: source
+        resource: app-git
+  - name: build-image
+    taskRef:
+      name: build-image-task
+      kind: Task
+    params:
+    - name: APP_NAME
+      value: $(params.APP_NAME)
+    - name: GOALS
+      value:
+        - com.github.eirslett:frontend-maven-plugin:1.7.6:install-node-and-npm
+        - -DnodeVersion="v12.14.0
+        - clean
+        - package
+        - -Pproduction
+        - -DskipTests=true
+    - name: GIT_CONTEXT_DIR_DOCKER
+      value: $(params.GIT_CONTEXT_DIR_DOCKER)
+    - name: WAR_CONTEXT
+      value: $(params.WAR_CONTEXT)
+    - name: BUILDER_IMAGE
+      value: $(params.BUILDER_IMAGE)
+    - name: IMAGE_URL
+      value: $(params.IMAGE_URL)
+    - name: IMAGE_TAG
+      value: $(params.IMAGE_TAG)
+    - name: MVN_IMAGE
+      value: $(params.MVN_IMAGE)
+    resources:
+      inputs:
+      - name: source
+        resource: app-git
+  - name: deploy-image
+    taskRef:
+      name: deploy-task
+      kind: Task
+    params:
+    - name: IMAGE_URL
+      value: $(params.IMAGE_URL)
+    - name: IMAGE_TAG
+      value: $(params.IMAGE_TAG)
+    - name: DEPLOYMENT
+      value: $(params.APP_NAME)
+    - name: PROJECT_NAME
+      value: $(params.PROJECT_NAME)
+    runAfter:
+    - build-image
+    - junit-test
+    resources:
+      inputs:
+      - name: source
+        resource: app-git
+#   - name: apply-manifests
+#     taskRef:
+#       name: apply-manifests
+#     workspaces:
+#     - name: source
+#       workspace: shared-workspace
+#     runAfter:
+#     - build-image
+#   - name: update-deployment
+#     taskRef:
+#       name: update-deployment
+#     workspaces:
+#     - name: source
+#       workspace: shared-workspace
+#     params:
+#     - name: deployment
+#       value: $(params.deployment-name)
+#     - name: IMAGE
+#       value: $(params.IMAGE)
+#     runAfter:
+#     - apply-manifests

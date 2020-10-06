@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: app-backery-tekton-pipeline
+  labels:
+    tekton.dev/pipeline: build-and-deploy
+spec:
+  params:
+    - name: GOALS
+      value:
+        - com.github.eirslett:frontend-maven-plugin:1.7.6:install-node-and-npm
+        - -DnodeVersion="v12.14.0
+        - test
+        - -Pproduction
+    - name: APP_NAME
+      value: demobakery
+    - name: PROJECT_NAME
+      value: bookinfo
+    - name: GIT_CONTEXT_DIR_KUBERNETES
+      value: kubernetes/dev
+    - name: GIT_CONTEXT_DIR_DOCKER
+      value: kubernetes/dev
+    - name: WAR_CONTEXT
+      value: ./target
+    - name: MVN_IMAGE
+      value: 'maven:3.6.3-jdk-8'
+    - name: IMAGE_URL
+      value: image-registry.openshift-image-registry.svc:5000/bookinfo/demobakery
+  pipelineRef:
+    name: build-and-deploy
+  serviceAccountName: pipeline
+  resources:
+    - name: app-git
+      resourceRef:
+        name: app-git
+  timeout: 1h0m0s

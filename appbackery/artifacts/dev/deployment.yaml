@@ -99,61 +99,6 @@ objects:
         terminationGracePeriodSeconds: 30
     test: false
     triggers: []
-# BUILDCONFIG
-- apiVersion: build.openshift.io/v1
-  kind: BuildConfig
-  metadata:
-    labels:
-      app: ${APP_NAME}
-      build: ${APP_NAME}
-    name: ${APP_NAME}
-    namespace: ${DEV_PROJECT} 
-  spec:
-    failedBuildsHistoryLimit: 5
-    nodeSelector: null
-    output:
-      pushSecret:
-        name: ${APP_NAME}-secret
-      to:
-        kind: DockerImage
-        name: ${QUAY_REPOSITORY}:${IMAGE_TAG}
-    postCommit: {}
-    resources: {}
-    runPolicy: Serial
-    source:
-      dockerfile: |-
-        FROM quay.io/bitnami/tomcat
-        COPY ROOT.war /app
-      type: Dockerfile
-    strategy:
-      dockerStrategy:
-        from:
-          kind: ImageStreamTag
-          name: tomcat:latest
-      type: Docker
-    successfulBuildsHistoryLimit: 5
-# IMGSTREAM
-- apiVersion: image.openshift.io/v1
-  kind: ImageStream
-  metadata:
-    labels:
-      build: ${APP_NAME}
-      app: ${APP_NAME}
-    name: tomcat
-    namespace: ${DEV_PROJECT}
-  spec:
-    lookupPolicy:
-      local: false
-    tags:
-    - annotations:
-        openshift.io/imported-from: quay.io/bitnami/tomcat
-      from:
-        kind: DockerImage
-        name: quay.io/bitnami/tomcat
-      importPolicy: {}
-      name: latest
-      referencePolicy:
-        type: Source
 # SERVICE
 - apiVersion: v1
   kind: Service
@@ -188,22 +133,16 @@ objects:
       name: ${APP_NAME}
       weight: 100
     wildcardPolicy: None
-# QUAY.IO APP SECRET
-- apiVersion: v1
-  data:
-    .dockerconfigjson: eyJhdXRocyI6eyJxdWF5LmlvIjp7InVzZXJuYW1lIjoiZW5uaW90b3JyZStvc2J1aWxkZXIiLCJwYXNzd29yZCI6IjIzUVAwT0tNV0NLREtQQ1JNVVREMVc0RFI2WjM2WFA0N1lRS0JHRURHWERBS1VYV05WVVBTU1FZRlc3U09STEwiLCJhdXRoIjoiWlc1dWFXOTBiM0p5WlN0dmMySjFhV3hrWlhJNk1qTlJVREJQUzAxWFEwdEVTMUJEVWsxVlZFUXhWelJFVWpaYU16WllVRFEzV1ZGTFFrZEZSRWRZUkVGTFZWaFhUbFpWVUZOVFVWbEdWemRUVDFKTVRBPT0ifX19
-  kind: Secret
-  metadata:
-    name: ${APP_NAME}-secret
-    namespace: ${DEV_PROJECT}
   type: kubernetes.io/dockerconfigjso
 # QUAY.IO PIPE SECRET
 - apiVersion: v1
-  data:
+  stringData:
     password: MjNRUDBPS01XQ0tES1BDUk1VVEQxVzREUjZaMzZYUDQ3WVFLQkdFREdYREFLVVhXTlZVUFNTUVlGVzdTT1JMTA==
     username: ZW5uaW90b3JyZStvc2J1aWxkZXI=
   kind: Secret
   metadata:
+    annotations:
+      tekton.dev/docker-0: https://quay.io # Described below
     labels:
       credential.sync.jenkins.openshift.io: "true"
     name: quay-cicd-secret

@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-task
+spec:
+  resources:
+    inputs:
+    - name: source
+      type: git
+  params:
+  - name: GOALS
+    description: The Maven goals to run
+    type: array
+  - name: APP_NAME
+    type: string
+    description: name of the deployment to be patched
+  - name: GIT_CONTEXT_DIR_DOCKER
+    type: string
+    description: Docker Image path
+  - name: WAR_CONTEXT
+    type: string
+    description: War file location
+  - name: MVN_IMAGE
+    type: string
+    description: image to be build from the code
+  steps:
+  - name: maven-exec
+    image: $(params.MVN_IMAGE)
+    workingDir: /workspace/source
+    command:
+    - mvn
+    args:
+    - --batch-mode
+    - --update-snapshots
+    - -Dmaven.repo.local=/workspace/source/.m2
+    - $(params.GOALS)
+  - name: copy-artifacts
+    image: 'quay.io/openshift-pipeline/openshift-cli:latest'
+    resources: {}
+    script: |
+      #!/usr/bin/env bash
+
+      if ls /workspace/source/$(params.WAR_CONTEXT)/*.war 1> /dev/null 2>&1; then
+      
+        cp -f /workspace/source/$(params.WAR_CONTEXT)/*.war /workspace/source/$(params.GIT_CONTEXT_DIR_DOCKER)
+
+      else
+
+        echo "war file does not exist"
+
+      fi
+  

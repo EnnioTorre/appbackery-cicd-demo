@@ -1,0 +1,110 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-image-task
+spec:
+  resources:
+    inputs:
+    - name: source
+      type: git
+  params:
+  - name: GOALS
+    description: The Maven goals to run
+    type: array
+  - name: APP_NAME
+    type: string
+    description: name of the deployment to be patched
+  - name: GIT_CONTEXT_DIR_DOCKER
+    type: string
+    description: Docker Image path
+  - name: WAR_CONTEXT
+    type: string
+    description: War file location
+  - name: MVN_IMAGE
+    type: string
+    description: image to be build from the code
+  - name: BUILDER_IMAGE
+    type: string
+    description: buildah image
+  - name: IMAGE_URL
+    type: string
+    description: image to be build from the code
+  - name: IMAGE_TAG
+    type: string
+    description: image tag
+  - name: TLSVERIFY
+    type: string
+    description: image tag
+    default: "false"
+  results:
+    - description: The precise commit SHA that was fetched by this Task
+      name: commit
+  steps:
+  - name: maven-exec
+    image: $(params.MVN_IMAGE)
+    workingDir: /workspace/source
+    command:
+    - mvn
+    args:
+    - --batch-mode
+    - --update-snapshots
+    - -Dmaven.repo.local=/workspace/source/.m2
+    - $(params.GOALS)
+  - name: copy-artifacts
+    image: $(params.MVN_IMAGE)
+    workingDir: /workspace/source
+    resources: {}
+    script: |
+      #!/usr/bin/env bash
+
+      if ls $(params.WAR_CONTEXT)/*.war 1> /dev/null 2>&1; then
+      
+        cp -f $(params.WAR_CONTEXT)/*.war $(params.GIT_CONTEXT_DIR_DOCKER)
+        RESULT_SHA="$(git rev-parse HEAD | tr -d '\n')"
+        echo -n "$RESULT_SHA" > $(results.commit.path)
+
+      else
+
+        echo "war file does not exist"
+
+      fi
+  - name: build-image
+    image: $(params.BUILDER_IMAGE)
+    workingDir: /workspace/source/$(params.GIT_CONTEXT_DIR_DOCKER)
+    command: ['buildah']
+    args:
+      - bud
+      - --storage-driver=vfs
+      - --layers
+      - --tls-verify=$(params.TLSVERIFY)
+      - -t
+      - "$(params.IMAGE_URL):$(params.IMAGE_TAG)"
+      - "."
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+    securityContext:
+      privileged: true
+  - name: image-push
+    image: $(params.BUILDER_IMAGE)
+    workingDir: /workspace/source
+    command: ['buildah','push', '--storage-driver=vfs','--tls-verify=$(params.TLSVERIFY)', '$(params.IMAGE_URL):$(params.IMAGE_TAG)', 'docker://$(params.IMAGE_URL):$(params.IMAGE_TAG)']
+    volumeMounts:
+    - name: varlibcontainers
+      mountPath: /var/lib/containers
+    securityContext:
+      privileged: true
+
+  # - name: oc-build-config
+  #   image: quay.io/openshift-pipeline/openshift-cli:latest
+  #   command: ["/usr/local/bin/oc"]
+  #   workingDir: /workspace/source
+  #   args:
+  #     - start-build
+  #     - {{ include "springboot-tekton.fullname" . }}
+  #     - --from-dir=./
+  #     - -e=ARTIFACT_URL=*.war
+  #     - --follow
+  volumes:
+    - name: varlibcontainers
+      emptyDir: {}
