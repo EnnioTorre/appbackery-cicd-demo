@@ -3,7 +3,7 @@ app_name: 'demobakery'
 app_repo: 'https://github.com/EnnioTorre/vaadin-demo-bakery-app.git'
 cpu: '500m'
 dev_project: bookinfo
-image_tag: 'latest'
+image_tag: 'dev'
 memory: '2Gi'
 quay_repository: quay.io/enniotorre/demobackery
 replicas: '1'
