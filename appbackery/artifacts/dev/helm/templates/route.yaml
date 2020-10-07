@@ -15,4 +15,3 @@ spec:
     name: {{ .Values.app_name }}
     weight: 100
   wildcardPolicy: None
-type: kubernetes.io/dockerconfigjso
