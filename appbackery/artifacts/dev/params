@@ -1,4 +1,4 @@
-APP_NAME=demobakery
+APP_NAME=demobackery
 MEMORY=2Gi
 CPU=500m
 REPLICAS=1
