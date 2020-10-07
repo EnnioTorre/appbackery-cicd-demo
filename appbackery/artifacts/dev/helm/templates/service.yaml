@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .Values.app_name }}
+    group: demobackery
+    template: demobackery
+  name: {{ .Values.app_name }}
+  namespace: {{ .Values.dev_project }}
+spec:
+  ports:
+  - name: http-port
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: {{ .Values.app_name }}
+  sessionAffinity: None
+  type: ClusterIP

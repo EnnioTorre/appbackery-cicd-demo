@@ -65,21 +65,28 @@ spec:
 
       else
 
-        echo "war file does not exist"
+        echo "war file does not exist-nothing to do"
 
       fi
   - name: build-image
     image: $(params.BUILDER_IMAGE)
     workingDir: /workspace/source/$(params.GIT_CONTEXT_DIR_DOCKER)
-    command: ['buildah']
-    args:
-      - bud
-      - --storage-driver=vfs
-      - --layers
-      - --tls-verify=$(params.TLSVERIFY)
-      - -t
-      - "$(params.IMAGE_URL):$(params.IMAGE_TAG)"
-      - "."
+    script: |
+      #!/usr/bin/env bash
+
+      IMAGE_TAG=$(cat $(results.commit.path))
+
+      if [ -z $IMAGE_TAG]
+      then
+        echo "no RESULT_SHA, using IMAGE_TAG from task parameters"
+        IMAGE_TAG=$(params.IMAGE_TAG)
+      fi
+      
+      echo "going to create image with TAG: $IMAGE_TAG"
+      
+      buildah bud --storage-driver=vfs --layers --tls-verify=$(params.TLSVERIFY) -t "$(params.IMAGE_URL):$IMAGE_TAG" "." && \
+      buildah push --storage-driver=vfs --tls-verify=$(params.TLSVERIFY) "$(params.IMAGE_URL):$IMAGE_TAG" docker://$(params.IMAGE_URL):$IMAGE_TAG
+
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
@@ -88,7 +95,6 @@ spec:
   - name: image-push
     image: $(params.BUILDER_IMAGE)
     workingDir: /workspace/source
-    command: ['buildah','push', '--storage-driver=vfs','--tls-verify=$(params.TLSVERIFY)', '$(params.IMAGE_URL):$(params.IMAGE_TAG)', 'docker://$(params.IMAGE_URL):$(params.IMAGE_TAG)']
     volumeMounts:
     - name: varlibcontainers
       mountPath: /var/lib/containers
