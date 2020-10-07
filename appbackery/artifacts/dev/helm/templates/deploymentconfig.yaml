@@ -23,13 +23,11 @@ spec:
     type: Rolling
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: {{ .Values.app_name }}
     spec:
       containers:
-      - env: []
-        image: {{ .Values.quay_repository }}:{{ .Values.image_tag }}
+      - image: {{ .Values.quay_repository }}:{{ .Values.image_tag }}
         imagePullPolicy: Always
         name: {{ .Values.app_name }}
         ports:
@@ -40,6 +38,10 @@ spec:
           httpGet:
             path: /actuator/health
             port: 8080
+            scheme: HTTP	
+          periodSeconds: 10	
+          successThreshold: 1	
+          timeoutSeconds: 1
         resources:
           limits:
             cpu: {{ .Values.cpu }}
